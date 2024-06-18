@@ -133,16 +133,27 @@ designer_url="https://store.serif.com/en-us/update/windows/designer/2/"
 photo_url="https://store.serif.com/en-us/update/windows/photo/2/"
 publisher_url="https://store.serif.com/en-us/update/windows/publisher/2/"
 
-designer_fileurl=$(curl -gs "$designer_url" | grep '2\.3\.1.*\.exe' | grep -o 'https.*' | tr -d '"' | grep -v 'arm64' | sed 's/&amp;/\&/g')
-photo_fileurl=$(curl -gs "$photo_url" | grep '2\.3\.1.*\.exe' | grep -o 'https.*' | tr -d '"' | grep -v 'arm64' | sed 's/&amp;/\&/g')
-publisher_fileurl=$(curl -gs "$publisher_url" | grep '2\.3\.1.*\.exe' | grep -o 'https.*' | tr -d '"' | grep -v 'arm64' | sed 's/&amp;/\&/g')
+designer_html_content=$(curl -gs "$designer_url")
+photo_html_content=$(curl -gs "$photo_url")
+publisher_html_content=$(curl -gs "$publisher_url")
 
-echo
-echo "Downloading installers..."
-echo
-aria2c $ARIA2_PARAMETERS --out affinity-designer-msi-2.3.1.exe "$designer_fileurl"
-aria2c $ARIA2_PARAMETERS --out affinity-photo-msi-2.3.1.exe "$photo_fileurl"
-aria2c $ARIA2_PARAMETERS --out affinity-publisher-msi-2.3.1.exe "$publisher_fileurl"
+latest_version=$(echo "$designer_html_content" | grep -o '2\.[0-9]*\.[0-9]*' | sort -V | tail -n 1)
+
+if [ "$1" = "--apply-patch" ]; then
+latest_version=2.3.1
+fi
+
+
+designer_fileurl=$(echo "$designer_html_content" | grep "$latest_version.*\.exe" | grep -o 'https.*' | tr -d '"' | grep -v 'arm64' | sed 's/&amp;/\&/g' | sed '2d')
+designer_fileurl=$(echo "$photo_html_content" | grep "$latest_version.*\.exe" | grep -o 'https.*' | tr -d '"' | grep -v 'arm64' | sed 's/&amp;/\&/g' | sed '2d')
+designer_fileurl=$(echo "$publisher_html_content" | grep "$latest_version.*\.exe" | grep -o 'https.*' | tr -d '"' | grep -v 'arm64' | sed 's/&amp;/\&/g' | sed '2d')
+
+ echo
+ echo "Downloading installers..."
+ echo
+ aria2c $ARIA2_PARAMETERS --out affinity-designer-msi-$latest_version.exe "$designer_fileurl"
+ aria2c $ARIA2_PARAMETERS --out affinity-photo-msi-$latest_version.exe "$photo_fileurl"
+ aria2c $ARIA2_PARAMETERS --out affinity-publisher-msi-$latest_version.exe "$publisher_fileurl"
 
 
 # We already create shortcuts for these Apps.
@@ -151,15 +162,15 @@ DESKTOP=$(xdg-user-dir DESKTOP)
 
 zenity --info --text="Please proceed with all of the installers."
 
-rum ElementalWarrior-8.14 $HOME/LinuxCreativeSoftware/Affinity wine $HOME/affinity_setup_tmp/affinity-designer-msi-2.3.1.exe &>/dev/null &
+ rum ElementalWarrior-8.14 $HOME/LinuxCreativeSoftware/Affinity wine $HOME/affinity_setup_tmp/affinity-designer-msi-$latest_version.exe &>/dev/null &
 spinner "Installing Designer"
 rm -f $DESKTOP/Affinity\ Designer\ 2.lnk
 
-rum ElementalWarrior-8.14 $HOME/LinuxCreativeSoftware/Affinity wine $HOME/affinity_setup_tmp/affinity-photo-msi-2.3.1.exe &>/dev/null &
+ rum ElementalWarrior-8.14 $HOME/LinuxCreativeSoftware/Affinity wine $HOME/affinity_setup_tmp/affinity-photo-msi-$latest_version.exe &>/dev/null &
 spinner "Installing Photo"
 rm -f $DESKTOP/Affinity\ Photo\ 2.lnk
 
-rum ElementalWarrior-8.14 $HOME/LinuxCreativeSoftware/Affinity wine $HOME/affinity_setup_tmp/affinity-publisher-msi-2.3.1.exe &>/dev/null &
+ rum ElementalWarrior-8.14 $HOME/LinuxCreativeSoftware/Affinity wine $HOME/affinity_setup_tmp/affinity-publisher-msi-$latest_version.exe &>/dev/null &
 spinner "Installing Publisher"
 rm -f $DESKTOP/Affinity\ Publisher\ 2.lnk
 
