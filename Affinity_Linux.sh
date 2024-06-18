@@ -125,7 +125,7 @@ spinner "Setting Windows version to 11"
 killall zenity
 
 # You can extract these files yourself manually from any windows 10 or 11 installation. Just copy the WinMetadata folder from System32 to this path i specified.
-aria2c $ARIA2_PARAMETERS --out winmd.7z https://github.com/woafID/psychic-engine/releases/download/winmd/winmd.7z
+aria2c $ARIA2_PARAMETERS --out winmd.7z https://archive.org/download/win_metadata_mirror/winmd.7z
 7z x $HOME/affinity_setup_tmp/winmd.7z -o$HOME/LinuxCreativeSoftware/Affinity/drive_c/windows/system32/WinMetadata &>/dev/null &
 spinner "Extracting"
 
