@@ -80,6 +80,7 @@ for PACKAGE in $PACKAGES; do
   fi
 done
 
+echo "Installing dependencies: $NEW_PACKAGES"
 # Install new packages
 if [ "$PKG_MANAGER" = "apt" ]; then
   sudo apt install "${NEW_PACKAGES[@]}" -y
@@ -111,6 +112,8 @@ sudo ln -s /opt/wines/ElementalWarrior-8.14/bin/wine /opt/wines/ElementalWarrior
 
 zenity --info --text="You may get prompted to install Wine Mono, in the next section. Please proceed with installing it. Other parts of the installation will be silent. Be patient."
 
+mkdir $HOME/LinuxCreativeSoftware
+
 # Ignore the "command not found" error. This is how it default agrees.
 y | rum ElementalWarrior-8.14 $HOME/LinuxCreativeSoftware/Affinity wineboot --init &>/dev/null &
 
@@ -125,6 +128,7 @@ spinner "Setting Windows version to 11"
 killall zenity
 
 # You can extract these files yourself manually from any windows 10 or 11 installation. Just copy the WinMetadata folder from System32 to this path i specified.
+echo "Downloading WinMetadata..."
 aria2c $ARIA2_PARAMETERS --out winmd.7z https://archive.org/download/win_metadata_mirror/winmd.7z
 7z x $HOME/affinity_setup_tmp/winmd.7z -o$HOME/LinuxCreativeSoftware/Affinity/drive_c/windows/system32/WinMetadata &>/dev/null &
 spinner "Extracting"
@@ -145,8 +149,8 @@ fi
 
 
 designer_fileurl=$(echo "$designer_html_content" | grep "$latest_version.*\.exe" | grep -o 'https.*' | tr -d '"' | grep -v 'arm64' | sed 's/&amp;/\&/g' | sed '2d')
-designer_fileurl=$(echo "$photo_html_content" | grep "$latest_version.*\.exe" | grep -o 'https.*' | tr -d '"' | grep -v 'arm64' | sed 's/&amp;/\&/g' | sed '2d')
-designer_fileurl=$(echo "$publisher_html_content" | grep "$latest_version.*\.exe" | grep -o 'https.*' | tr -d '"' | grep -v 'arm64' | sed 's/&amp;/\&/g' | sed '2d')
+photo_fileurl=$(echo "$photo_html_content" | grep "$latest_version.*\.exe" | grep -o 'https.*' | tr -d '"' | grep -v 'arm64' | sed 's/&amp;/\&/g' | sed '2d')
+publisher_fileurl=$(echo "$publisher_html_content" | grep "$latest_version.*\.exe" | grep -o 'https.*' | tr -d '"' | grep -v 'arm64' | sed 's/&amp;/\&/g' | sed '2d')
 
  echo
  echo "Downloading installers..."
