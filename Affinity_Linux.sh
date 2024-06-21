@@ -1,8 +1,6 @@
 #!/usr/bin/env bash
 
-
 # Code functionality is commented to help everybody, including Linux beginners to better understand what is being run on their system.
-
 
 # Functionality to clean up if the user presses Ctrl+C to abort the installation. This prevents users from having an incomplete/broken setup.
 trap '
@@ -30,6 +28,34 @@ if [ "$EUID" -eq 0 ]; then
     echo "Please run as regular user."
     exit 1
 fi
+
+if [ "$1" = "--uninstall" ]; then
+  echo "Are you sure you want to remove Linux Affinity and all of its related files? (Y/N)"
+  read -r response
+
+  if [[ $response =~ ^[Yy]$ ]]; then
+    rm -fr $HOME/affinity_setup_tmp
+    rm -fr $HOME/LinuxCreativeSoftware/Affinity
+    rmdir $HOME/LinuxCreativeSoftware --ignore-fail-on-non-empty
+    rm -f $HOME/.local/share/applications/affinity_designer.desktop
+    rm -f $HOME/.local/share/applications/affinity_photo.desktop
+    rm -f $HOME/.local/share/applications/affinity_publisher.desktop
+    echo
+    echo "Elevation is required to remove the following:"
+    echo "/usr/local/bin/rum" 
+    echo "/opt/wines"
+    echo
+    
+    sudo rm -f /usr/local/bin/rum
+    sudo rm -fr /opt/wines
+    echo Removal of Linux Affinity has finished.
+    exit 0
+  else
+    echo "Removal of Linux Affinity has been cancelled."
+    exit 0
+  fi
+fi
+
 
 # An animated loading spinner, which is later invoked by the   spinner "Current_Task_Name_Here"   function.
 spinner(){
