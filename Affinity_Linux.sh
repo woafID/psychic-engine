@@ -29,6 +29,7 @@ if [ "$EUID" -eq 0 ]; then
     exit 1
 fi
 
+# If users launch with --uninstall, revert all modifications.
 if [ "$1" = "--uninstall" ]; then
   echo "Are you sure you want to remove Linux Affinity and all of its related files? (Y/N)"
   read -r response
